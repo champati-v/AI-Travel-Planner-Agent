@@ -28,8 +28,7 @@ const TravelForm = ({ onPlanGenerated, isLoading, setIsLoading }: TravelFormProp
     endDate: "",
     budget: "",
     travelers: "",
-    interests: [] as string[],
-    apiKey: ""
+    interests: [] as string[]
   });
 
   const handleInterestChange = (interest: string, checked: boolean) => {
@@ -43,15 +42,6 @@ const TravelForm = ({ onPlanGenerated, isLoading, setIsLoading }: TravelFormProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.apiKey.trim()) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your Gemini API key to generate travel plans.",
-        variant: "destructive"
-      });
-      return;
-    }
 
     if (formData.interests.length === 0) {
       toast({
@@ -75,8 +65,6 @@ const TravelForm = ({ onPlanGenerated, isLoading, setIsLoading }: TravelFormProp
     setIsLoading(true);
     
     try {
-      // Store API key in localStorage for this session
-      localStorage.setItem('gemini-api-key', formData.apiKey);
       onPlanGenerated(travelPlan);
     } catch (error) {
       console.error('Error generating travel plan:', error);
@@ -97,33 +85,6 @@ const TravelForm = ({ onPlanGenerated, isLoading, setIsLoading }: TravelFormProp
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* API Key Input */}
-          <div className="space-y-2">
-            <Label htmlFor="apiKey" className="text-sm font-medium">
-              Gemini API Key *
-            </Label>
-            <Input
-              id="apiKey"
-              type="password"
-              placeholder="Enter your Gemini API key"
-              value={formData.apiKey}
-              onChange={(e) => setFormData(prev => ({ ...prev, apiKey: e.target.value }))}
-              className="border-2 focus:border-blue-500 transition-colors"
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              Get your free API key from{" "}
-              <a 
-                href="https://makersuite.google.com/app/apikey" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                Google AI Studio
-              </a>
-            </p>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Source */}
             <div className="space-y-2">

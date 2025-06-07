@@ -1,7 +1,9 @@
-
 import { TravelPlan } from "@/pages/Index";
 
-export const generateTravelPlan = async (travelPlan: TravelPlan, apiKey: string): Promise<string> => {
+// Replace this with your actual Gemini API key
+const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
+
+export const generateTravelPlan = async (travelPlan: TravelPlan): Promise<string> => {
   const prompt = `
 You are an expert travel planner AI. Create a detailed, personalized travel itinerary based on the following information:
 
@@ -31,7 +33,7 @@ Format the response in a clear, easy-to-read structure with proper headings and 
   try {
     console.log('Making API request to Gemini...');
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

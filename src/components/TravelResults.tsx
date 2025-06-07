@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,19 +20,8 @@ const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelR
   useEffect(() => {
     const fetchTravelPlan = async () => {
       try {
-        const apiKey = localStorage.getItem('gemini-api-key');
-        if (!apiKey) {
-          toast({
-            title: "API Key Missing",
-            description: "Please enter your Gemini API key.",
-            variant: "destructive"
-          });
-          onReset();
-          return;
-        }
-
         console.log('Generating travel plan with:', travelPlan);
-        const response = await generateTravelPlan(travelPlan, apiKey);
+        const response = await generateTravelPlan(travelPlan);
         console.log('AI Response:', response);
         setAiResponse(response);
       } catch (error) {
