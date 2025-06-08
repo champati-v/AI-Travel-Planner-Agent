@@ -1,7 +1,7 @@
 import { TravelPlan } from "@/pages/Index";
 
 // Replace this with your actual Gemini API key
-const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 export const generateTravelPlan = async (travelPlan: TravelPlan): Promise<string> => {
   const prompt = `

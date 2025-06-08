@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import html2pdf from "html2pdf.js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { generateTravelPlan } from "@/utils/geminiApi";
 import { TravelPlan } from "@/pages/Index";
 import { toast } from "@/hooks/use-toast";
+import ReactMarkdown from "react-markdown";
+import { DownloadIcon } from "lucide-react";
 
 interface TravelResultsProps {
   travelPlan: TravelPlan;
@@ -16,6 +18,19 @@ interface TravelResultsProps {
 
 const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelResultsProps) => {
   const [aiResponse, setAiResponse] = useState<string>("");
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadPDF = () => {
+    if (contentRef.current) {
+      html2pdf().set({
+        margin: 0.5,
+        filename: "ai-response.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+      }).from(contentRef.current).save();
+    }
+  };
 
   useEffect(() => {
     const fetchTravelPlan = async () => {
@@ -59,7 +74,7 @@ const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelR
 
   if (isLoading) {
     return (
-      <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+      <Card className="shadow-xl border border-white/10 backdrop-blur-sm">
         <CardContent className="flex flex-col items-center justify-center py-16">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mb-4"></div>
           <h3 className="text-xl font-semibold mb-2">Creating Your Perfect Trip</h3>
@@ -75,7 +90,7 @@ const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelR
     <div className="space-y-6">
       {/* Trip Overview */}
       <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
+        <CardHeader className="bg-gradient-to-br from-blue-600 to-purple-500 text-white rounded-t-lg">
           <div className="flex justify-between items-start">
             <div>
               <CardTitle className="text-2xl mb-2">
@@ -91,14 +106,14 @@ const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelR
             <Button 
               variant="secondary" 
               onClick={onReset}
-              className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+              className="bg-white/20 hover:bg-white/50 text-white border-white/30"
             >
               Plan New Trip
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
+        <CardContent className="pt-6 bg-white text-black">
+          <div className="space-y-4 flex justify-between items-center">
             <div>
               <h4 className="font-semibold mb-2">Your Interests</h4>
               <div className="flex flex-wrap gap-2">
@@ -106,19 +121,27 @@ const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelR
                   <Badge 
                     key={interest} 
                     variant="secondary"
-                    className="bg-blue-100 text-blue-800 hover:bg-blue-200"
+                    className="bg-blue-100 text-blue-800 border border-blue-800 hover:bg-blue-200"
                   >
                     {interest}
                   </Badge>
                 ))}
               </div>
             </div>
+              <div className="">
+                <button
+                  onClick={handleDownloadPDF}
+                  className="px-2 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
+                >
+                   PDF <DownloadIcon />
+                </button>
+              </div>
           </div>
         </CardContent>
       </Card>
 
       {/* AI Generated Itinerary */}
-      <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+      <Card className="shadow-xl border border-white/50">
         <CardHeader>
           <CardTitle className="text-xl flex items-center">
             <span className="mr-2">🤖</span>
@@ -127,11 +150,13 @@ const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelR
         </CardHeader>
         <CardContent>
           {aiResponse ? (
-            <div className="prose prose-gray max-w-none">
-              <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-                {aiResponse}
+            <>
+              <div className="prose prose-gray max-w-none">
+                <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+                  <ReactMarkdown>{aiResponse}</ReactMarkdown> 
+                </div>
               </div>
-            </div>
+            </>
           ) : (
             <div className="text-center py-8">
               <div className="animate-pulse">

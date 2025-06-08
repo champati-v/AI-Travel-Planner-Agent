@@ -104,7 +104,7 @@ const TravelForm = ({ onPlanGenerated, isLoading, setIsLoading }: TravelFormProp
   today.setHours(0, 0, 0, 0);
 
   return (
-    <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+    <Card className="shadow-xl border-0">
       <CardHeader className="text-center pb-6">
         <CardTitle className="text-2xl text-foreground">Plan Your Perfect Trip</CardTitle>
         <p className="text-muted-foreground">Fill in your travel preferences and let AI do the rest</p>
