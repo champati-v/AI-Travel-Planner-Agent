@@ -131,9 +131,9 @@ const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelR
               <div className="">
                 <button
                   onClick={handleDownloadPDF}
-                  className="px-2 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
+                  className="flex items-center gap-2 px-2 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
                 >
-                   PDF <DownloadIcon />
+                   <DownloadIcon />
                 </button>
               </div>
           </div>

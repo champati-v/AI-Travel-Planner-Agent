@@ -1,9 +1,13 @@
 import { useState } from "react";
 import * as Switch from "@radix-ui/react-switch";
 import { motion, AnimatePresence } from "framer-motion";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/utils/firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/utils/firebase";
 import { toast } from "@/hooks/use-toast";
+import {doc, setDoc} from "firebase/firestore";
+import { LoaderIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,11 +15,31 @@ export default function AuthForm() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState(""); 
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const toggleMode = () => setIsLogin(!isLogin);
 
-  const handleLogin = () => {
-    // Handle login logic here
-    console.log("Logging in with:", { email, password });
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      const user = auth.currentUser;
+      console.log("User logged in:", user);
+      toast({
+        title: "Login Successful!",
+        description: `Welcome back, You have successfully logged in.`,
+        variant: "default"
+      });
+      navigate("/plan");
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: "Invalid email or password. Please try again.",
+        variant: "destructive"
+      });
+    }
+    setIsLoading(false);
   };
 
   const handleRegister = async (e) => {
@@ -29,18 +53,19 @@ export default function AuthForm() {
         description: `Welcome ${fullName || email}! Your account has been created successfully.`,
         variant: "default"
       });
+      setIsLogin(true);
+      console.log("User created:", user);
     } catch (error) {
       console.error("Error creating user:", error);
       toast({
         title: "Failed to Register User",
-        description: "Something went wrong while creating your account. Please try again.",
+        description: error.message,
         variant: "destructive"
       });
     } finally{
       setEmail("");
       setPassword("");
       setFullName("");
-      setIsLogin(true);
       setIsLoading(false);
     }
   }
@@ -83,21 +108,21 @@ export default function AuthForm() {
                 placeholder="Email"
                 onChange={(e) => setEmail(e.target.value)}
                 value={email}
-                className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="border text-black border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <input
                 type="password"
                 placeholder="Password"
                 onChange={(e) => setPassword(e.target.value)}
                 value={password}
-                className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="border border-gray-300 text-black p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <button
                 type="submit"
-                className="bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
-                onClick={() => handleLogin()}
+                className="flex items-center gap-2 justify-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+                onClick={(e) => handleLogin(e)}
               >
-                Login
+                Login {isLoading && <LoaderIcon className="animate-spin" />}
               </button>
             </motion.form>
           ) : (
@@ -114,14 +139,14 @@ export default function AuthForm() {
                 placeholder="Full Name"
                 onChange={(e) => setFullName(e.target.value)}
                 value={fullName}
-                className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="border text-black border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <input
                 type="email"
                 placeholder="Email"
                 onChange={(e) => setEmail(e.target.value)}
                 value={email}
-                className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="border text-black border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <input
                 type="password"
@@ -132,11 +157,11 @@ export default function AuthForm() {
               />
               <button
                 type="submit"
-                className="bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
+                className="flex items-center gap-2 justify-center bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
                 onClick={(e) => handleRegister(e)}
                 disabled={isLoading}
               >
-                Sign Up {isLoading && <span className="ml-2 spinner-border spinner-border-sm"></span>}
+                Sign Up {isLoading && <LoaderIcon className="animate-spin" />}
               </button>
             </motion.form>
           )}

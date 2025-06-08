@@ -11,10 +11,12 @@ import { LocateIcon, MenuIcon, MoonIcon, SunIcon } from 'lucide-react';
 import { HistoryIcon } from 'lucide-react';
 import { LogOutIcon } from 'lucide-react';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import { auth } from '@/utils/firebase';
 
 export default function Header() {
   const [open, setOpen] = React.useState(false);
   const { isDark, toggleDark } = useDarkMode();
+  const user = auth.currentUser;
   const theme = useTheme();
 
   const toggleDrawer = (newOpen: boolean) => () => {
