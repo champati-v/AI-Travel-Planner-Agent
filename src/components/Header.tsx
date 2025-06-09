@@ -11,24 +11,60 @@ import { LocateIcon, MenuIcon, MoonIcon, SunIcon } from 'lucide-react';
 import { HistoryIcon } from 'lucide-react';
 import { LogOutIcon } from 'lucide-react';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import { auth } from '@/utils/firebase';
+import { useAuth } from '@/context/AuthContext';
+import { signOut } from 'firebase/auth';
+import { toast } from '@/hooks/use-toast';
+import { auth } from '@/utils/firebase'; 
 
 export default function Header() {
   const [open, setOpen] = React.useState(false);
   const { isDark, toggleDark } = useDarkMode();
-  const user = auth.currentUser;
+  const { user } = useAuth();
   const theme = useTheme();
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
 
+  console.log('User:', user);
+
   const menuItems = [
-    { text: 'New Trip', icon: <LocateIcon /> },
-    { text: 'Last 3 Trips', icon: <HistoryIcon /> },
-    { text: 'Logout', icon: <LogOutIcon /> },
+    { text: 'New Trip', icon: <LocateIcon />, action: () => handleNewTrip() },
+    { text: 'Last 3 Trips', icon: <HistoryIcon />, action: () => handleLastThreeTrips() },
+    { text: 'Logout', icon: <LogOutIcon /> , action: () => handleLogout()},
   ];
 
+  const handleLogout = async () => {
+    try{
+      await signOut(auth);
+      console.log('User logged out successfully');
+    }catch (error) {
+      console.error('Error logging out:', error);
+      toast({
+        title: 'Logout Failed',
+        description: error.message,
+        variant: 'destructive',
+      })
+    }
+    console.log('User logged out');
+  }
+
+  const handleNewTrip = () => {
+    {user ? window.location.href = '/plan' : toast({
+      title: '⚠️ Please Login',
+      description: 'You need to login to create a new trip.',
+      variant: 'default',
+    })
+    }
+  };
+
+  const handleLastThreeTrips = () => {
+    toast({
+      title: '⚠️ Under Development',
+      description: '🚧 This feature is under development. Stay tuned!',
+      variant: 'default',
+    });
+  };
 
  const DrawerList = (
     <Box
@@ -42,9 +78,9 @@ export default function Header() {
       onClick={toggleDrawer(false)}
     >
       <List>
-        {menuItems.map(({ text, icon }) => (
+        {menuItems.map(({ text, icon, action }) => (
           <ListItem key={text} disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={action}>
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>
@@ -59,6 +95,9 @@ export default function Header() {
         <div className="flex items-center">
            <LocateIcon className='text-2xl' />
            <span className='text-xl font-semibold ml-2'>Trip Planner AI</span>
+           { user && (
+            <span className='ml-4 text-sm text-gray-500'>Welcome, {user.displayName || user.email}</span>
+            )}
         </div>
         <div className='flex items-center gap-3'>
             <button

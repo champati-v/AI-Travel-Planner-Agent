@@ -1,10 +1,9 @@
 import { useState } from "react";
 import * as Switch from "@radix-ui/react-switch";
 import { motion, AnimatePresence } from "framer-motion";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth, db } from "@/utils/firebase";
 import { toast } from "@/hooks/use-toast";
-import {doc, setDoc} from "firebase/firestore";
 import { LoaderIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,6 +14,9 @@ export default function AuthForm() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState(""); 
   const [isLoading, setIsLoading] = useState(false);
+  const googleProvider = new GoogleAuthProvider();
+
+
   const navigate = useNavigate();
   const toggleMode = () => setIsLogin(!isLogin);
 
@@ -68,13 +70,15 @@ export default function AuthForm() {
       setFullName("");
       setIsLoading(false);
     }
+  };
+
+  const signupWithGoogle = async () => {
+    setIsLoading(true);
+    await signInWithPopup(auth, googleProvider)
   }
 
   return (
-    <div className="h-[80vh] flex items-center justify-center px-4">
-      <p className="absolute top-40 text-2xl font-semibold">
-        Login Now to plan your dream trip!
-      </p>
+    <div className="h-[80vh] flex flex-col gap-5 items-center justify-center px-4">
       <div className="w-full max-w-md border border-white/10 rounded-2xl shadow-2xl p-6 sm:p-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
@@ -121,6 +125,7 @@ export default function AuthForm() {
                 type="submit"
                 className="flex items-center gap-2 justify-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
                 onClick={(e) => handleLogin(e)}
+                disabled={isLoading}
               >
                 Login {isLoading && <LoaderIcon className="animate-spin" />}
               </button>
@@ -166,6 +171,19 @@ export default function AuthForm() {
             </motion.form>
           )}
         </AnimatePresence>
+      </div>
+     
+      <div className="flex flex-col items-center gap-5">
+        <span className="text-center">OR</span>
+        <div className="flex items-center gap-4">
+            <button onClick={signupWithGoogle} className="flex items-center gap-2 border border-black/20 bg-white shadow-xl rounded-full px-3 py-2 text-black">
+              <img src="https://img.icons8.com/?size=28&id=17949&format=png&color=000000"  alt="Google Icon" /> Continue With Google
+            </button>
+            <button onClick={signupWithGoogle} className="flex items-center gap-2 border border-black/20 bg-white shadow-xl rounded-full px-3 py-2 text-black">
+              <img src="https://img.icons8.com/?size=28&id=3tC9EQumUAuq&format=png&color=000000"  alt="Google Icon" /> Continue With Github
+            </button>
+        </div>
+          
       </div>
     </div>
   );
