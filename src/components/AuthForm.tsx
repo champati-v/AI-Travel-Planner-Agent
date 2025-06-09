@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as Switch from "@radix-ui/react-switch";
 import { motion, AnimatePresence } from "framer-motion";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth, db } from "@/utils/firebase";
 import { toast } from "@/hooks/use-toast";
 import { LoaderIcon } from "lucide-react";
@@ -15,6 +15,7 @@ export default function AuthForm() {
   const [fullName, setFullName] = useState(""); 
   const [isLoading, setIsLoading] = useState(false);
   const googleProvider = new GoogleAuthProvider();
+  const githubProvider = new GithubAuthProvider();
 
 
   const navigate = useNavigate();
@@ -73,8 +74,33 @@ export default function AuthForm() {
   };
 
   const signupWithGoogle = async () => {
+    try{
     setIsLoading(true);
     await signInWithPopup(auth, googleProvider)
+    } catch (error) {
+      toast({
+        title: "Google Sign In Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const signupWithGithub = async () => {
+    try{
+    setIsLoading(true);
+    await signInWithPopup(auth, githubProvider)
+    } catch (error) {
+      toast({
+        title: "Github Sign In Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally{
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -179,7 +205,7 @@ export default function AuthForm() {
             <button onClick={signupWithGoogle} className="flex items-center gap-2 border border-black/20 bg-white shadow-xl rounded-full px-3 py-2 text-black">
               <img src="https://img.icons8.com/?size=28&id=17949&format=png&color=000000"  alt="Google Icon" /> Continue With Google
             </button>
-            <button onClick={signupWithGoogle} className="flex items-center gap-2 border border-black/20 bg-white shadow-xl rounded-full px-3 py-2 text-black">
+            <button onClick={signupWithGithub} className="flex items-center gap-2 border border-black/20 bg-white shadow-xl rounded-full px-3 py-2 text-black">
               <img src="https://img.icons8.com/?size=28&id=3tC9EQumUAuq&format=png&color=000000"  alt="Google Icon" /> Continue With Github
             </button>
         </div>
