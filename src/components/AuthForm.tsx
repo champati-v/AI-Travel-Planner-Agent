@@ -6,6 +6,7 @@ import { auth, db } from "@/utils/firebase";
 import { toast } from "@/hooks/use-toast";
 import { LoaderIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 
 export default function AuthForm() {
@@ -14,6 +15,8 @@ export default function AuthForm() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState(""); 
   const [isLoading, setIsLoading] = useState(false);
+  const [resetPasswordModal, setResetPasswordModal] = useState(false);
+  const { isDark } = useDarkMode();
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
 
@@ -78,6 +81,7 @@ export default function AuthForm() {
     setIsLoading(true);
     await signInWithPopup(auth, googleProvider)
     } catch (error) {
+      console.log(error)
       toast({
         title: "Google Sign In Failed",
         description: error.message,
@@ -93,6 +97,7 @@ export default function AuthForm() {
     setIsLoading(true);
     await signInWithPopup(auth, githubProvider)
     } catch (error) {
+      console.log(error)
       toast({
         title: "Github Sign In Failed",
         description: error.message,
@@ -209,8 +214,41 @@ export default function AuthForm() {
               <img src="https://img.icons8.com/?size=28&id=3tC9EQumUAuq&format=png&color=000000"  alt="Google Icon" /> Continue With Github
             </button>
         </div>
-          
+
+        <button onClick={() => setResetPasswordModal(true)} className="text-blue-500 underline">Forgot Password</button>
       </div>
+
+      {resetPasswordModal && (
+        <motion.div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div className={`${isDark ? 'bg-[#010613]': 'bg-white'} p-6 rounded-lg shadow-lg w-full max-w-md relative`}>
+            <button
+              className="absolute top-3 right-3 text-xl"
+              onClick={() => setResetPasswordModal(false)}
+              aria-label="Close"
+              type="button"
+            >
+              &times;
+            </button>
+            <h3 className="text-lg font-semibold mb-4">Reset Password</h3>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="border border-gray-300 p-3 rounded-lg w-full mb-4"
+            />
+            <button
+              className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+              onClick={() => setResetPasswordModal(false)}
+            >
+              Send Reset Link
+            </button>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

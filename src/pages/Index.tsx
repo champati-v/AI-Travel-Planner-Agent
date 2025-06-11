@@ -26,7 +26,7 @@ const Index = () => {
   };
   
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full mt-10">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div

@@ -91,26 +91,25 @@ export default function Header() {
   );
 
   return (
-    <div className='flex justify-between items-center px-8 py-4'>
+    <header className="fixed top-0 left-0 w-full z-50 shadow-md border-b backdrop-blur-sm">
+      <div className="flex justify-between items-center px-8 py-4">
         <div className="flex items-center">
-           <LocateIcon className='text-2xl' />
-           <span className='text-xl font-semibold ml-2'>Trip Planner AI</span>
-           { user && (
-            <span className='ml-4 text-sm text-gray-500'>Welcome, {user.displayName || user.email}</span>
-            )}
+          <LocateIcon className="text-2xl" />
+          <span className="text-xl font-semibold ml-2">Trip Planner AI</span>
         </div>
-        <div className='flex items-center gap-3'>
-            <button
-                onClick={toggleDark}
-                className={`px-4 py-2 rounded text-primary-foreground transition-all duration-200`}
-            >
-                {isDark ? <SunIcon className="text-white" /> : <MoonIcon className="text-blue-950" />}
-            </button>
-            <MenuIcon className='cursor-pointer' onClick={toggleDrawer(true)} />
-            <Drawer open={open} onClose={toggleDrawer(false)}>
-                {DrawerList}
-            </Drawer>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggleDark}
+            className="px-4 py-2 rounded text-primary-foreground transition-all duration-200"
+          >
+            {isDark ? <SunIcon className="text-white" /> : <MoonIcon className="text-blue-950" />}
+          </button>
+          <MenuIcon className="cursor-pointer" onClick={toggleDrawer(true)} />
+          <Drawer open={open} onClose={toggleDrawer(false)}>
+            {DrawerList}
+          </Drawer>
         </div>
-    </div>
+      </div>
+    </header>
   );
 }

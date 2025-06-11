@@ -27,7 +27,7 @@ You are an expert travel planner AI. Create a detailed, personalized travel itin
 
 Make sure all recommendations align with the specified interests and stay within the budget. Be specific with names of places, restaurants, and attractions when possible. Consider the travel dates for seasonal activities and weather.
 
-Format the response in a clear, easy-to-read structure with proper headings and bullet points.
+Format the response in a valid json object with the keys as discussed in point 1 to 8 above. Do not use markdown or code blocks.
 `;
 
   try {

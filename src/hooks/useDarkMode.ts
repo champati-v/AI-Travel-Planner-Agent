@@ -4,24 +4,24 @@ import { useEffect, useState } from "react";
 export function useDarkMode() {
   const [isDark, setIsDark] = useState(false);
 
-  useEffect(() => {
-    const storedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldUseDark = storedTheme === "dark" || (!storedTheme && prefersDark);
+  // useEffect(() => {
+  //   const storedTheme = localStorage.getItem("theme");
+  //   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  //   const shouldUseDark = storedTheme === "dark" || (!storedTheme && prefersDark);
 
-    if (shouldUseDark) {
-      document.documentElement.classList.add("dark");
-      setIsDark(true);
-    } else {
-      document.documentElement.classList.remove("dark");
-      setIsDark(false);
-    }
-  }, []);
+  //   if (shouldUseDark) {
+  //     document.documentElement.classList.add("dark");
+  //     setIsDark(true);
+  //   } else {
+  //     document.documentElement.classList.remove("dark");
+  //     setIsDark(false);
+  //   }
+  // }, [isDark]);
 
   const toggleDark = () => {
     const newTheme = isDark ? "light" : "dark";
     document.documentElement.classList.toggle("dark", newTheme === "dark");
-    localStorage.setItem("theme", newTheme);
+    // localStorage.setItem("theme", newTheme);
     setIsDark(!isDark);
   };
 

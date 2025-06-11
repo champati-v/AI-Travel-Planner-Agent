@@ -18,6 +18,8 @@ interface TravelResultsProps {
 
 const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelResultsProps) => {
   const [aiResponse, setAiResponse] = useState<string>("");
+  const [structuredData, setStructuredData] = useState<any | null>(null);
+
   const contentRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPDF = () => {
@@ -39,11 +41,13 @@ const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelR
         const response = await generateTravelPlan(travelPlan);
         console.log('AI Response:', response);
         setAiResponse(response);
+        const parsed = JSON.parse(response);
+        setStructuredData(parsed);
       } catch (error) {
         console.error('Error fetching travel plan:', error);
         toast({
           title: "Error",
-          description: "Failed to generate travel plan. Please check your API key and try again.",
+          description: error.message,
           variant: "destructive"
         });
         onReset();
@@ -141,40 +145,124 @@ const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelR
       </Card>
 
       {/* AI Generated Itinerary */}
-      <Card className="shadow-xl border border-white/50">
-        <CardHeader>
-          <CardTitle className="text-xl flex items-center">
-            <span className="mr-2">🤖</span>
-            AI-Generated Travel Itinerary
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {aiResponse ? (
-            <>
-              <div className="prose prose-gray max-w-none">
-                <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-                  <ReactMarkdown>{aiResponse}</ReactMarkdown> 
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-8">
-              <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto"></div>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+    <Card className="shadow-xl border">
+      <CardHeader>
+        <CardTitle className="text-xl flex items-center">
+          <span className="mr-2">🤖</span>
+          AI-Generated Travel Itinerary
+        </CardTitle>
+      </CardHeader>
+      <CardContent ref={contentRef}>
+        {structuredData ? (
+          <div className="space-y-6">
+            {/* Trip Overview */}
+            <Card className="border">
+              <CardHeader>
+                <CardTitle>🗺️ Trip Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">{structuredData["Trip Overview"]}</p>
+              </CardContent>
+            </Card>
+
+            {/* Day-by-Day Itinerary */}
+            {Array.isArray(structuredData["Day-by-Day Itinerary"]) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>📅 Complete Itinerary</CardTitle>
+                </CardHeader>
+                <CardContent className="text-[16px] space-y-4">
+                  {structuredData["Day-by-Day Itinerary"].map((day: any, index: number) => (
+                    <Card key={index} className="border">
+                      <CardHeader>
+                        <CardTitle>{day.Day}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-[16px] space-y-1 text-sm">
+                        <p><strong>🌅 Morning:</strong> {day.Morning}</p>
+                        <p><strong>🌇 Afternoon:</strong> {day.Afternoon}</p>
+                        <p><strong>🌃 Evening:</strong> {day.Evening}</p>
+                        {day.Night && <p><strong>🌙 Night:</strong> {day.Night}</p>}
+                        {day.Cost && <p><strong>💰 Cost:</strong> {day.Cost}</p>}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+
+          {[
+            ["🏨 Accommodation Recommendations", structuredData["Accommodation Recommendations"]],
+            ["🍽️ Food & Dining", structuredData["Food & Dining"]],
+            ["📝 Travel Tips", structuredData["Travel Tips"]],
+            ["🎒 Packing Suggestions", structuredData["Packing Suggestions"]]
+          ].map(([title, items], idx) => (
+            Array.isArray(items) && (
+              <Card key={idx} className="text-[16px] border">
+                <CardHeader>
+                  <CardTitle>{title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="text-[16px] list-inside space-y-1 text-sm">
+                    {items.map((item: any, index: number) => (
+                      <li key={index}>
+                        {typeof item === 'string'
+                          ? item
+                          : // For object items like accommodation or food
+                            Object.entries(item).map(([key, value]) => (
+                              <div key={key}>
+                                <strong>{key}:</strong> {String(value)}
+                              </div>
+                            ))
+                        }
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )
+          ))}
+
+
+            {/* Transportation */}
+            <Card className="border">
+              <CardHeader>
+                <CardTitle>🚗 Transportation</CardTitle>
+              </CardHeader>
+              <CardContent className="text-[16px] space-y-2 text-sm">
+                <p>{structuredData.Transportation}</p>
+              </CardContent>
+            </Card>
+
+            {/* Budget Breakdown */}
+            <Card className="border">
+              <CardHeader>
+                <CardTitle>💸 Budget Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent className="text-[16px]">
+                <ul className="space-y-1 text-sm">
+                  {Object.entries(structuredData["Budget Breakdown"]).map(([key, value]: [string, string], index: number) => (
+                    <li key={index}><strong>{key}:</strong> {value}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+            <ReactMarkdown>{aiResponse}</ReactMarkdown> 
+          </div>
+        )}
+      </CardContent>
+    </Card>
+
 
       {/* Actions */}
       <div className="flex justify-center space-x-4">
         <Button 
           onClick={onReset}
           variant="outline"
-          className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+          className="border-2 border-blue-600 text-blue-600"
         >
           Plan Another Trip
         </Button>
