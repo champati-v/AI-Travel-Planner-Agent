@@ -5,35 +5,66 @@ const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 export const generateTravelPlan = async (travelPlan: TravelPlan): Promise<string> => {
   const prompt = `
-You are an expert travel planner AI. Create a detailed, personalized travel itinerary based on the following information:
+You are an expert travel planner AI. Create a detailed, personalized travel itinerary based on the following input:
 
-**Trip Details:**
+Trip Details:
 - From: ${travelPlan.source}
 - To: ${travelPlan.destination}
 - Dates: ${travelPlan.startDate} to ${travelPlan.endDate}
-- Budget: $${travelPlan.budget} USD
+- Budget: ₹${travelPlan.budget} INR
 - Number of travelers: ${travelPlan.travelers}
 - Interests: ${travelPlan.interests.join(', ')}
 
-**Please provide:**
-1. **Trip Overview** - Brief summary of the trip
-2. **Day-by-Day Itinerary** - Detailed daily schedule with activities, timing, and estimated costs
-3. **Accommodation Recommendations** - Hotels/stays within budget
-4. **Transportation** - Best ways to get around locally and between cities
-5. **Food & Dining** - Restaurant recommendations based on interests and budget
-6. **Budget Breakdown** - Estimated costs for different categories
-7. **Travel Tips** - Specific advice for this destination
-8. **Packing Suggestions** - What to bring based on season and activities
+Return the response **only** as a valid JSON object with the following top-level keys:
+1. "tripOverview": { "summary": string }
+2. "itinerary": array of {
+   "day": string,
+   "date": string,
+   "activities": array of {
+     "time": string,
+     "name": string,
+     "location": string,
+     "description": string,
+     "estimatedCost": number
+   },
+   "dailyTotalCost": number
+}
+3. "accommodationRecommendations": array of {
+   "name": string,
+   "location": string,
+   "pricePerNight": number,
+   "totalCost": number,
+   "amenities": array of string
+}
+4. "transportation": {
+   "local": {
+     "modes": array of string,
+     "estimatedCost": number
+   },
+   "intercity": {
+     "mode": string,
+     "provider": string,
+     "estimatedCost": number
+   }
+}
+5. "foodAndDining": array of {
+   "name": string,
+   "type": string,
+   "location": string,
+   "averageCostPerMeal": number,
+   "recommendedDishes": array of string
+}
+6. "budgetBreakdown": object with keys like "accommodation", "transportation", "food", "activities", "miscellaneous", "total" and their number values
+7. "travelTips": array of strings
+8. "packingSuggestions": array of strings
 
-Make sure all recommendations align with the specified interests and stay within the budget. Be specific with names of places, restaurants, and attractions when possible. Consider the travel dates for seasonal activities and weather.
-
-Format the response in a valid json object with the keys as discussed in point 1 to 8 above. Do not use markdown or code blocks.
+⚠️ Do not include any extra text, explanation, markdown, or backtick json wrappers. Just return the JSON object.
 `;
 
   try {
     console.log('Making API request to Gemini...');
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -145,115 +145,134 @@ const TravelResults = ({ travelPlan, onReset, isLoading, setIsLoading }: TravelR
       </Card>
 
       {/* AI Generated Itinerary */}
-    <Card className="shadow-xl border">
-      <CardHeader>
-        <CardTitle className="text-xl flex items-center">
-          <span className="mr-2">🤖</span>
-          AI-Generated Travel Itinerary
-        </CardTitle>
-      </CardHeader>
-      <CardContent ref={contentRef}>
-        {structuredData ? (
-          <div className="space-y-6">
-            {/* Trip Overview */}
-            <Card className="border">
-              <CardHeader>
-                <CardTitle>🗺️ Trip Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{structuredData["Trip Overview"]}</p>
-              </CardContent>
-            </Card>
+    <Card className="shadow-xl border w-full max-w-5xl mx-auto">
+  <CardHeader>
+    <CardTitle className="text-xl flex items-center">
+      <span className="mr-2">🤖</span>
+      AI-Generated Travel Itinerary
+    </CardTitle>
+  </CardHeader>
 
-            {/* Day-by-Day Itinerary */}
-            {Array.isArray(structuredData["Day-by-Day Itinerary"]) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>📅 Complete Itinerary</CardTitle>
-                </CardHeader>
-                <CardContent className="text-[16px] space-y-4">
-                  {structuredData["Day-by-Day Itinerary"].map((day: any, index: number) => (
-                    <Card key={index} className="border">
-                      <CardHeader>
-                        <CardTitle>{day.Day}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="text-[16px] space-y-1 text-sm">
-                        <p><strong>🌅 Morning:</strong> {day.Morning}</p>
-                        <p><strong>🌇 Afternoon:</strong> {day.Afternoon}</p>
-                        <p><strong>🌃 Evening:</strong> {day.Evening}</p>
-                        {day.Night && <p><strong>🌙 Night:</strong> {day.Night}</p>}
-                        {day.Cost && <p><strong>💰 Cost:</strong> {day.Cost}</p>}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
+  <CardContent ref={contentRef}>
+    {structuredData ? (
+      <div className="space-y-6">
 
+        {/* Trip Overview */}
+        <Card className="border">
+          <CardHeader>
+            <CardTitle>🗺️ Trip Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">{structuredData.tripOverview?.summary}</p>
+          </CardContent>
+        </Card>
 
-          {[
-            ["🏨 Accommodation Recommendations", structuredData["Accommodation Recommendations"]],
-            ["🍽️ Food & Dining", structuredData["Food & Dining"]],
-            ["📝 Travel Tips", structuredData["Travel Tips"]],
-            ["🎒 Packing Suggestions", structuredData["Packing Suggestions"]]
-          ].map(([title, items], idx) => (
-            Array.isArray(items) && (
-              <Card key={idx} className="text-[16px] border">
-                <CardHeader>
-                  <CardTitle>{title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="text-[16px] list-inside space-y-1 text-sm">
-                    {items.map((item: any, index: number) => (
-                      <li key={index}>
-                        {typeof item === 'string'
-                          ? item
-                          : // For object items like accommodation or food
-                            Object.entries(item).map(([key, value]) => (
-                              <div key={key}>
-                                <strong>{key}:</strong> {String(value)}
-                              </div>
-                            ))
-                        }
-                      </li>
+        {/* Day-by-Day Itinerary */}
+        {Array.isArray(structuredData.itinerary) && (
+          <Card className="border">
+            <CardHeader>
+              <CardTitle>📅 Complete Itinerary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {structuredData.itinerary.map((day: any, index: number) => (
+                <Card key={index} className="border">
+                  <CardHeader>
+                    <CardTitle>{day.day} – {day.date}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    {day.activities.map((activity: any, i: number) => (
+                      <div key={i} className="border-b pb-2">
+                        <p><strong>🕒 Time:</strong> {activity.time}</p>
+                        <p><strong>📍 Name:</strong> {activity.name}</p>
+                        <p><strong>📌 Location:</strong> {activity.location}</p>
+                        <p><strong>📝 Description:</strong> {activity.description}</p>
+                        <p><strong>💰 Estimated Cost:</strong> ${activity.estimatedCost}</p>
+                      </div>
                     ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )
-          ))}
+                    <p className="pt-2 font-semibold">Daily Total Cost: ${day.dailyTotalCost}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
-
-            {/* Transportation */}
-            <Card className="border">
+        {/* Accommodation, Food, Travel Tips, Packing */}
+        {[
+          ["🏨 Accommodation Recommendations", structuredData.accommodationRecommendations],
+          ["🍽️ Food & Dining", structuredData.foodAndDining],
+          ["📝 Travel Tips", structuredData.travelTips],
+          ["🎒 Packing Suggestions", structuredData.packingSuggestions]
+        ].map(([title, items], idx) => (
+          Array.isArray(items) && (
+            <Card key={idx} className="border">
               <CardHeader>
-                <CardTitle>🚗 Transportation</CardTitle>
+                <CardTitle>{title}</CardTitle>
               </CardHeader>
-              <CardContent className="text-[16px] space-y-2 text-sm">
-                <p>{structuredData.Transportation}</p>
-              </CardContent>
-            </Card>
-
-            {/* Budget Breakdown */}
-            <Card className="border">
-              <CardHeader>
-                <CardTitle>💸 Budget Breakdown</CardTitle>
-              </CardHeader>
-              <CardContent className="text-[16px]">
-                <ul className="space-y-1 text-sm">
-                  {Object.entries(structuredData["Budget Breakdown"]).map(([key, value]: [string, string], index: number) => (
-                    <li key={index}><strong>{key}:</strong> {value}</li>
+              <CardContent className="space-y-2 text-sm">
+                <ul className="list-disc list-inside space-y-2">
+                  {items.map((item: any, index: number) => (
+                    <li key={index}>
+                      {typeof item === 'string' ? (
+                        item
+                      ) : (
+                        <div className="space-y-1">
+                          {Object.entries(item).map(([key, value]) => (
+                            <p key={key}><strong>{key}:</strong> {Array.isArray(value) ? value.join(', ') : String(value)}</p>
+                          ))}
+                        </div>
+                      )}
+                    </li>
                   ))}
                 </ul>
               </CardContent>
             </Card>
-          </div>
-        ) : (
-          <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-            <ReactMarkdown>{aiResponse}</ReactMarkdown> 
-          </div>
+          )
+        ))}
+
+        {/* Transportation */}
+        {structuredData.transportation && (
+          <Card className="border">
+            <CardHeader>
+              <CardTitle>🚗 Transportation</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm space-y-2">
+              <div>
+                <p className="font-semibold">Local Transport:</p>
+                <p><strong>Modes:</strong> {structuredData.transportation.local.modes.join(', ')}</p>
+                <p><strong>Estimated Cost:</strong> ${structuredData.transportation.local.estimatedCost}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Intercity Transport:</p>
+                <p><strong>Mode:</strong> {structuredData.transportation.intercity.mode}</p>
+                <p><strong>Provider:</strong> {structuredData.transportation.intercity.provider}</p>
+                <p><strong>Estimated Cost:</strong> ${structuredData.transportation.intercity.estimatedCost}</p>
+              </div>
+            </CardContent>
+          </Card>
         )}
-      </CardContent>
+
+        {/* Budget Breakdown */}
+        <Card className="border">
+          <CardHeader>
+            <CardTitle>💸 Budget Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <ul className="space-y-1">
+              {Object.entries(structuredData.budgetBreakdown).map(([key, value], index: number) => (
+                <li key={index}><strong>{key}:</strong> ${String(value)}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+
+      </div>
+    ) : (
+      <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+        <ReactMarkdown>{aiResponse}</ReactMarkdown>
+      </div>
+    )}
+  </CardContent>
     </Card>
 
 

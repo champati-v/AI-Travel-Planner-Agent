@@ -10,6 +10,7 @@ import Header from "./components/Header";
 import AuthForm from "./components/AuthForm";
 import ProtectedRoute from "./components/protectedRoutes";
 import { useAuth } from "./context/AuthContext";
+import { DarkModeProvider } from "./context/DarkModeContext";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ const App = () => {
   const { user, loading } = useAuth();
 
   return (
+  <DarkModeProvider>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -30,9 +32,11 @@ const App = () => {
           <Route 
             path="/plan"
             element={
+              user?
              <ProtectedRoute> 
               <Index />
             </ProtectedRoute>
+            : <AuthForm />
             } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
@@ -40,6 +44,7 @@ const App = () => {
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </DarkModeProvider>
   )
 };
 

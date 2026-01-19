@@ -3,10 +3,11 @@ import * as Switch from "@radix-ui/react-switch";
 import { motion, AnimatePresence } from "framer-motion";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth, db } from "@/utils/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "@/hooks/use-toast";
 import { LoaderIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkMode } from "@/context/DarkModeContext";
 
 
 export default function AuthForm() {
@@ -79,7 +80,23 @@ export default function AuthForm() {
   const signupWithGoogle = async () => {
     try{
     setIsLoading(true);
-    await signInWithPopup(auth, googleProvider)
+    const result = await signInWithPopup(auth, googleProvider)
+    const user = result.user;
+
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        provider: "google",
+        createdAt: new Date(),
+      });
+    }
+
     } catch (error) {
       console.log(error)
       toast({
@@ -95,7 +112,23 @@ export default function AuthForm() {
   const signupWithGithub = async () => {
     try{
     setIsLoading(true);
-    await signInWithPopup(auth, githubProvider)
+    const result = await signInWithPopup(auth, githubProvider)
+    const user = result.user;
+
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        provider: "github",
+        createdAt: new Date(),
+      });
+    }
+
     } catch (error) {
       console.log(error)
       toast({
@@ -109,7 +142,7 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="h-[80vh] flex flex-col gap-5 items-center justify-center px-4">
+    <div className="h-[100vh] flex flex-col gap-5 items-center justify-center px-4">
       <div className="w-full max-w-md border border-white/10 rounded-2xl shadow-2xl p-6 sm:p-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
@@ -206,7 +239,7 @@ export default function AuthForm() {
      
       <div className="flex flex-col items-center gap-5">
         <span className="text-center">OR</span>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row items-center gap-4">
             <button onClick={signupWithGoogle} className="flex items-center gap-2 border border-black/20 bg-white shadow-xl rounded-full px-3 py-2 text-black">
               <img src="https://img.icons8.com/?size=28&id=17949&format=png&color=000000"  alt="Google Icon" /> Continue With Google
             </button>
@@ -220,7 +253,7 @@ export default function AuthForm() {
 
       {resetPasswordModal && (
         <motion.div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          className="fixed px-8 inset-0 bg-black/80 flex items-center justify-center z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

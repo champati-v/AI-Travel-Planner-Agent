@@ -26,7 +26,7 @@ const Index = () => {
   };
   
   return (
-    <div className="min-h-screen w-full mt-10">
+    <div className="min-h-screen w-full px-0 md:px-24 mt-10">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div
@@ -46,7 +46,7 @@ const Index = () => {
               Let our AI create the perfect travel itinerary tailored to your preferences, budget, and interests
             </p>
           </div>
-      </div>
+        </div>
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto">

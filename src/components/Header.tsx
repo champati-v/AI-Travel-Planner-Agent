@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkMode } from '@/context/DarkModeContext';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -15,13 +15,15 @@ import { useAuth } from '@/context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { toast } from '@/hooks/use-toast';
 import { auth } from '@/utils/firebase'; 
+import logo_d from '/logo-d.png';
+import logo_l from '/logo-l.png';
+
 
 export default function Header() {
   const [open, setOpen] = React.useState(false);
   const { isDark, toggleDark } = useDarkMode();
   const { user } = useAuth();
   const theme = useTheme();
-
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
@@ -91,13 +93,15 @@ export default function Header() {
   );
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 shadow-md border-b backdrop-blur-sm">
-      <div className="flex justify-between items-center px-8 py-4">
+    <header className="fixed top-0 left-0 w-full px-0 md:px-24 z-50 shadow-md border-b backdrop-blur-sm">
+      <div className="flex justify-between items-center px-8 py-2">
         <div className="flex items-center">
-          <LocateIcon className="text-2xl" />
-          <span className="text-xl font-semibold ml-2">Trip Planner AI</span>
+          <a href="/">
+            <img src={isDark? logo_l: logo_d} alt="Trip Planner AI logo" width="175" className='ml-[-45px]' />
+          </a>
         </div>
         <div className="flex items-center gap-3">
+          {user? <button onClick={handleLogout}>Logout</button> : <button onClick={() => window.location.href = '/auth'}>Login</button>}
           <button
             onClick={toggleDark}
             className="px-4 py-2 rounded text-primary-foreground transition-all duration-200"

@@ -1,29 +1,26 @@
 // hooks/useDarkMode.ts
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export function useDarkMode() {
   const [isDark, setIsDark] = useState(false);
 
-  // useEffect(() => {
-  //   const storedTheme = localStorage.getItem("theme");
-  //   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  //   const shouldUseDark = storedTheme === "dark" || (!storedTheme && prefersDark);
+  const toggleDark = useCallback(() => {
+    setIsDark((prev) => {
+      const newTheme = !prev ? "dark" : "light";
+      document.documentElement.classList.toggle("dark", newTheme === "dark");
+      localStorage.setItem("theme", newTheme);
+      return !prev;
+    });
+  }, []);
 
-  //   if (shouldUseDark) {
-  //     document.documentElement.classList.add("dark");
-  //     setIsDark(true);
-  //   } else {
-  //     document.documentElement.classList.remove("dark");
-  //     setIsDark(false);
-  //   }
-  // }, [isDark]);
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldUseDark = storedTheme === "dark" || (!storedTheme && prefersDark);
 
-  const toggleDark = () => {
-    const newTheme = isDark ? "light" : "dark";
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
-    // localStorage.setItem("theme", newTheme);
-    setIsDark(!isDark);
-  };
+    document.documentElement.classList.toggle("dark", shouldUseDark);
+    setIsDark(shouldUseDark);
+  }, []);
 
   return { isDark, toggleDark };
 }
